@@ -1,0 +1,39 @@
+{
+  "info": {
+    "name": "FinFlow AI",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": "{{baseUrl}}/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"ops@example.com\",\"password\":\"ChangeMe12345!\",\"full_name\":\"Ops Lead\",\"organization_id\":\"acme\"}"
+        }
+      }
+    },
+    {
+      "name": "Create Transaction",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}],
+        "url": "{{baseUrl}}/transactions",
+        "body": {"mode": "raw", "raw": "{\"merchant\":\"AWS India\",\"amount\":153000,\"currency\":\"INR\"}"}
+      }
+    },
+    {
+      "name": "Fraud Score",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": "{{baseUrl}}/fraud/score",
+        "body": {"mode": "raw", "raw": "{\"transaction_id\":\"demo\",\"user_id\":\"u1\",\"amount\":9800,\"merchant\":\"Offshore Wire\",\"prior_24h_count\":6,\"prior_24h_amount\":18000}"}
+      }
+    }
+  ],
+  "variable": [{"key": "baseUrl", "value": "http://localhost:8000"}, {"key": "token", "value": ""}]
+}
