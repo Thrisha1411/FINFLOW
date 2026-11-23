@@ -1,0 +1,131 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    image: nginx:alpine
+    container_name: finflow-gateway
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - finflow-net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: finflow-frontend
+    restart: always
+    networks:
+      - finflow-net
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: finflow-backend
+    restart: always
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://finflow_user:finflow_secret_pw@postgres:5432/finflow_db
+      - REDIS_URL=redis://redis:6379/0
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SECRET_KEY=finflow-super-secure-production-ready-secret-key-32charsmin!
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - finflow-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: finflow-postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=finflow_user
+      - POSTGRES_PASSWORD=finflow_secret_pw
+      - POSTGRES_DB=finflow_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finflow_user -d finflow_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - finflow-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: finflow-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - finflow-net
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: finflow-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - finflow-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: finflow-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - finflow-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: finflow-prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - finflow-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: finflow-grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - finflow-net
+
+networks:
+  finflow-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

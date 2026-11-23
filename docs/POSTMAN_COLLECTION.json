@@ -1,0 +1,93 @@
+{
+  "info": {
+    "name": "FinFlow AI API Collection",
+    "description": "Production API Collection for FinFlow AI Financial Operations & Fraud Intelligence Platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/health"
+      }
+    },
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@finflow.ai\",\n  \"password\": \"Admin123!@#\"\n}"
+        },
+        "url": "{{base_url}}/api/v1/auth/login"
+      }
+    },
+    {
+      "name": "Dashboard Overview",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/api/v1/dashboard/overview"
+      }
+    },
+    {
+      "name": "Transactions - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 125.00,\n  \"merchant_name\": \"Google Cloud Platform\",\n  \"currency\": \"USD\",\n  \"payment_method\": \"CORPORATE_CARD\"\n}"
+        },
+        "url": "{{base_url}}/api/v1/transactions"
+      }
+    },
+    {
+      "name": "AI Assistant - Chat",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"How much did I spend this month and what is my top category?\"\n}"
+        },
+        "url": "{{base_url}}/api/v1/assistant/chat"
+      }
+    },
+    {
+      "name": "Budget - 50/30/20 Analysis",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/api/v1/budgets/50-30-20"
+      }
+    },
+    {
+      "name": "Simulator - What-If Scenario",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"shopping_reduction_pct\": 15.0,\n  \"dining_reduction_pct\": 20.0,\n  \"income_delta\": 1000.0\n}"
+        },
+        "url": "{{base_url}}/api/v1/simulator/simulate"
+      }
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000" },
+    { "key": "token", "value": "" }
+  ]
+}
